@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สอบปลายภาค: กลยุทธ์การสื่อสารในยุคดิจิทัล</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+    <div id="app">
+        
+        <!-- ================= LOGIN SCREEN ================= -->
+        <div v-if="!isLoggedIn" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-800 py-12 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-md w-full bg-white p-10 rounded-3xl shadow-2xl border border-gray-100">
+                <div class="text-center mb-8">
+                    <div class="inline-block p-4 rounded-full bg-blue-50 mb-4">
+                        <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-gray-900 mb-2">สอบปลายภาค</h2>
+                    <h3 class="text-lg font-medium text-gray-600">วิชา กลยุทธ์การสื่อสารในยุคดิจิทัล</h3>
+                    <div class="mt-5 bg-red-50 border border-red-200 text-red-700 rounded-xl py-2 px-4 inline-flex items-center font-semibold shadow-sm">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        ใช้เวลาในการสอบ 3 ชั่วโมง
+                    </div>
+                </div>
+                
+                <form class="space-y-5" @submit.prevent="startExam">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">ชื่อ</label>
+                            <input type="text" v-model="studentInfo.firstName" required placeholder="ชื่อจริง" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">นามสกุล</label>
+                            <input type="text" v-model="studentInfo.lastName" required placeholder="นามสกุล" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">รหัสนักศึกษา</label>
+                        <input type="text" v-model="studentInfo.studentId" required placeholder="กรอกรหัสนักศึกษา" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Code (รหัสประจำตัว)</label>
+                        <!-- Changed from type="password" to type="text" so students can see their code -->
+                        <input type="text" v-model="studentInfo.code" required placeholder="กรอก Code ของคุณ" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    </div>
+                    
+                    <div class="pt-6">
+                        <button type="submit" class="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-md text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition transform hover:-translate-y-0.5">
+                            เข้าสู่ระบบ / เริ่มเรียน
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= MAIN APP SCREEN ================= -->
+        <div v-else>
+            <!-- Header -->
+            <header class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-12 text-center shadow-lg relative">
+                <div class="absolute top-4 right-6 text-sm bg-black/20 py-1.5 px-4 rounded-full font-medium">
+                    👤 {{ studentInfo.firstName }} {{ studentInfo.lastName }} ({{ studentInfo.studentId }}) | Code: {{ studentInfo.code }}
+                </div>
+                <h1 class="text-3xl font-bold mb-3">กลยุทธ์การสื่อสารในยุคดิจิทัล</h1>
+                <p class="text-lg font-light text-blue-100">โปรดศึกษาเนื้อหาและทำแบบทดสอบตามลำดับ เพื่อปลดล็อกข้อสอบประมวลความรู้</p>
+            </header>
+
+            <!-- Navigation -->
+            <nav class="bg-white shadow sticky top-0 z-50">
+                <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto py-3 gap-3 items-center">
+                    <button v-for="ch in sortedChapters" :key="ch.id" @click="goToChapter(ch.id)" 
+                            :disabled="isChapterLocked(ch.id)"
+                            :class="['whitespace-nowrap px-5 py-2 rounded-full font-medium transition flex items-center', 
+                                     currentMode === 'chapter' && currentChapter === ch.id ? 'bg-blue-600 text-white shadow' : 
+                                     isChapterLocked(ch.id) ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 
+                                     submitted[ch.id] ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-100 text-gray-700 hover:bg-gray-200']">
+                        <svg v-if="isChapterLocked(ch.id)" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <svg v-else-if="submitted[ch.id]" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        บทที่ {{ ch.id }}
+                    </button>
+                    
+                    <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                    
+                    <button @click="goToFinal" 
+                            :disabled="!allChaptersSubmitted"
+                            :title="!allChaptersSubmitted ? 'ต้องทำแบบทดสอบให้ครบ 8 บทก่อน' : ''"
+                            :class="['whitespace-nowrap px-6 py-2 rounded-full font-bold transition flex items-center', 
+                                     currentMode === 'final' ? 'bg-red-600 text-white shadow border-2 border-red-600' : 
+                                     !allChaptersSubmitted ? 'bg-gray-50 text-gray-400 border-2 border-gray-200 cursor-not-allowed' : 
+                                     'bg-white text-red-600 border-2 border-red-600 hover:bg-red-50 shadow-sm']">
+                        <svg v-if="!allChaptersSubmitted" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        📝 ข้อสอบรวม (50 ข้อ)
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="max-w-5xl mx-auto px-4 py-8">
+                
+                <!-- Chapter View -->
+                <div v-if="currentMode === 'chapter' && activeChapter">
+                    <div class="bg-white p-10 rounded-2xl shadow-sm mb-8 border border-gray-100">
+                        <h2 class="text-3xl font-bold text-blue-800 mb-8 border-b pb-4">บทที่ {{ activeChapter.id }}: {{ activeChapter.title }}</h2>
+                        <div class="prose max-w-none mb-12 text-lg leading-relaxed text-gray-700" v-html="activeChapter.content"></div>
+                        
+                        <!-- Quiz Section -->
+                        <div class="bg-blue-50/50 p-8 rounded-2xl border border-blue-100">
+                            <div class="flex items-center justify-between mb-8">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-blue-900">แบบทดสอบทบทวนบทที่ {{ activeChapter.id }} (4 ข้อ)</h3>
+                                    <p class="text-gray-600 mt-1" v-if="!submitted[activeChapter.id]">ต้องส่งคำตอบเพื่อปลดล็อกบทถัดไป</p>
+                                </div>
+                                <span v-if="submitted[activeChapter.id]" class="bg-green-100 text-green-800 px-4 py-2 rounded-lg font-bold flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    ส่งคำตอบแล้ว
+                                </span>
+                            </div>
+                            
+                            <div v-for="(q, index) in activeChapter.quiz.slice(0, 4)" :key="index" class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                                <p class="font-semibold text-lg mb-4 text-gray-800">{{ index + 1 }}. {{ q.question }}</p>
+                                <div class="space-y-3 pl-2">
+                                    <label v-for="(opt, oIndex) in q.options" :key="oIndex" 
+                                           :class="['flex items-start p-3 rounded-lg transition border', 
+                                                    !submitted[activeChapter.id] ? 'cursor-pointer' : '',
+                                                    answers[activeChapter.id][index] === oIndex ? 'bg-blue-50 border-blue-300' : 'border-transparent hover:bg-gray-50']">
+                                        <input type="radio" :name="'q_'+activeChapter.id+'_'+index" :value="oIndex" v-model="answers[activeChapter.id][index]" :disabled="submitted[activeChapter.id]" class="mt-1 mr-3 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-gray-700">{{ opt }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button v-if="!submitted[activeChapter.id]" @click="submitQuiz(activeChapter.id)" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition w-full text-lg shadow-md hover:shadow-lg flex justify-center items-center">
+                                ส่งคำตอบบทที่ {{ activeChapter.id }}
+                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </button>
+                            
+                            <!-- Next Step Navigation -->
+                            <div v-if="submitted[activeChapter.id]" class="mt-8 text-center bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                <p class="text-green-700 mb-4 font-medium text-lg flex justify-center items-center">
+                                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    ระบบได้บันทึกคำตอบของบทนี้เรียบร้อยแล้ว
+                                </p>
+                                <button v-if="activeChapter.id < 8" @click="goToChapter(activeChapter.id + 1)" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition inline-flex items-center">
+                                    เข้าสู่เนื้อหาบทที่ {{ activeChapter.id + 1 }}
+                                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                </button>
+                                <button v-else-if="activeChapter.id === 8" @click="goToFinal" class="bg-red-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-red-700 transition inline-flex items-center shadow-md">
+                                    ทำข้อสอบประมวลความรู้ (Final Exam)
+                                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Final Exam View -->
+                <div v-if="currentMode === 'final'">
+                    <div v-if="!finalSubmitted" class="bg-white p-10 rounded-2xl shadow-sm mb-8 border border-gray-100">
+                        <h2 class="text-3xl font-bold text-red-800 mb-4 border-b pb-4">สอบปลายภาค: ข้อสอบประมวลความรู้ (Final Exam)</h2>
+                        <p class="text-gray-600 mb-8 text-lg">แบบทดสอบจำนวน 50 ข้อ เลือกคำตอบที่ถูกต้องที่สุดเพียงข้อเดียว ขอให้โชคดีในการทำข้อสอบครับ</p>
+                        
+                        <div class="bg-red-50/30 p-8 rounded-2xl border border-red-100">
+                            <div class="flex items-center justify-between mb-8 sticky top-20 bg-white p-4 rounded-xl shadow-md border border-red-200 z-40" v-if="finalExam.length > 0">
+                                <div>
+                                    <p class="font-bold text-red-800 text-lg">ผู้สอบ: {{ studentInfo.firstName }} {{ studentInfo.lastName }}</p>
+                                    <p class="text-sm text-gray-500">รหัส: {{ studentInfo.studentId }} | Code: {{ studentInfo.code }}</p>
+                                </div>
+                                <div class="bg-red-100 text-red-800 px-4 py-2 rounded-lg font-bold">
+                                    ความคืบหน้า: {{ finalAnswers.filter(a => a !== null).length }} / 50 ข้อ
+                                </div>
+                            </div>
+                            
+                            <div v-if="finalExam.length === 0" class="text-center py-10 text-gray-500">
+                                <p>กำลังโหลดข้อสอบ...</p>
+                            </div>
+                            
+                            <div v-for="(q, index) in finalExam" :key="'f'+index" class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                                <p class="font-semibold text-lg mb-4 text-gray-800">{{ index + 1 }}. {{ q.question }}</p>
+                                <div class="space-y-3 pl-2">
+                                    <label v-for="(opt, oIndex) in q.options" :key="'fo'+oIndex" 
+                                           :class="['flex items-start cursor-pointer p-3 rounded-lg transition border', 
+                                                    finalAnswers[index] === oIndex ? 'bg-red-50 border-red-300 shadow-sm' : 'border-transparent hover:bg-gray-50']">
+                                        <input type="radio" :name="'fq_'+index" :value="oIndex" v-model="finalAnswers[index]" class="mt-1 mr-3 text-red-600 focus:ring-red-500">
+                                        <span class="text-gray-700">{{ opt }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button v-if="finalExam.length > 0" @click="submitFinal" class="bg-red-600 text-white px-8 py-5 rounded-xl font-bold hover:bg-red-700 transition w-full text-xl shadow-lg hover:shadow-xl mt-8 flex justify-center items-center">
+                                ส่งข้อสอบปลายภาค (50 ข้อ)
+                                <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Farewell Screen & Result Table -->
+                    <div v-if="finalSubmitted" class="text-center">
+                        <div class="bg-white border border-gray-200 p-10 rounded-3xl shadow-xl max-w-4xl mx-auto mb-8 relative overflow-hidden">
+                            <!-- Background Decoration -->
+                            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+                            
+                            <div class="relative z-10 pt-16">
+                                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-lg mb-6 border-4 border-white">
+                                    <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <h3 class="text-3xl font-extrabold text-gray-900 mb-2">ส่งข้อสอบสำเร็จ!</h3>
+                                <p class="text-xl text-gray-600 mb-8">คุณ <span class="font-bold text-blue-700">{{ studentInfo.firstName }} {{ studentInfo.lastName }}</span> (รหัส: {{ studentInfo.studentId }})</p>
+                                
+                                <div class="bg-green-50 rounded-2xl p-6 mb-8 inline-block border border-green-100 shadow-inner">
+                                    <p class="text-green-700 font-bold text-lg flex items-center">
+                                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        ระบบได้บันทึกคำตอบของคุณเข้าสู่ระบบเรียบร้อยแล้ว
+                                    </p>
+                                </div>
+
+                                <!-- Summary Table for Student to Capture/Copy -->
+                                <div class="mt-4 mb-10 text-left bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-sm">
+                                    <h4 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2 flex justify-between items-center">
+                                        <span>📊 ข้อมูลสรุปผลการสอบ (สำหรับส่งอาจารย์)</span>
+                                        <button @click="copyResults" class="text-sm bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-lg shadow transition flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                            คัดลอกข้อมูล
+                                        </button>
+                                    </h4>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <table class="w-full text-sm">
+                                                <tbody>
+                                                    <tr class="border-b"><td class="py-2 text-gray-500 font-medium">ชื่อ-สกุล</td><td class="py-2 font-bold text-gray-800">{{ studentInfo.firstName }} {{ studentInfo.lastName }}</td></tr>
+                                                    <tr class="border-b"><td class="py-2 text-gray-500 font-medium">รหัสนักศึกษา</td><td class="py-2 font-bold text-gray-800">{{ studentInfo.studentId }}</td></tr>
+                                                    <tr class="border-b"><td class="py-2 text-gray-500 font-medium">Code</td><td class="py-2 font-bold text-gray-800">{{ studentInfo.code }}</td></tr>
+                                                    <tr class="border-b"><td class="py-2 text-gray-500 font-medium">เวลาเริ่มสอบ</td><td class="py-2 font-bold text-gray-800">{{ formatTime(startTime) }}</td></tr>
+                                                    <tr class="border-b"><td class="py-2 text-gray-500 font-medium">เวลาสิ้นสุด</td><td class="py-2 font-bold text-gray-800">{{ formatTime(endTime) }}</td></tr>
+                                                    <tr><td class="py-2 text-gray-500 font-medium">รวมเวลาที่ใช้</td><td class="py-2 font-bold text-blue-600">{{ examDuration }}</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div>
+                                            <table class="w-full text-sm">
+                                                <thead>
+                                                    <tr class="bg-gray-200 text-gray-600"><th class="py-1 px-2 text-left rounded-l-lg">บทที่</th><th class="py-1 px-2 text-right rounded-r-lg">คะแนน</th></tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="ch in chapters" :key="'res'+ch.id" class="border-b border-gray-100">
+                                                        <td class="py-1.5 px-2 text-gray-600">แบบทดสอบบทที่ {{ ch.id }}</td>
+                                                        <td class="py-1.5 px-2 text-right font-bold text-gray-800">{{ getChapterScore(ch.id) }} / 4</td>
+                                                    </tr>
+                                                    <tr class="bg-red-50">
+                                                        <td class="py-2 px-2 text-red-800 font-bold rounded-l-lg">ข้อสอบประมวลความรู้ (Final)</td>
+                                                        <td class="py-2 px-2 text-right font-bold text-red-800 rounded-r-lg">{{ finalScore }} / 50</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 pt-10 border-t border-gray-100 text-xl leading-loose text-gray-700 px-8">
+                                    <p class="mb-6 italic text-gray-800">"ขอให้ทุกท่านโชคดีในการสอบและการก้าวเดินต่อไป ขอบคุณที่เข้ามาสร้างโอกาสดีๆ ให้เราได้มาพบและแลกเปลี่ยนเรียนรู้ร่วมกัน"</p>
+                                    <p class="mb-10 font-bold text-blue-800">"หวังเป็นอย่างยิ่งว่าเทอมถัดไปเราจะได้พบกันใหม่... แล้วพบกันในวันรับปริญญานะครับ/คะ"</p>
+                                    
+                                    <div class="inline-block text-left bg-blue-50/80 p-8 rounded-2xl shadow-sm border border-blue-100 w-full max-w-lg">
+                                        <p class="text-gray-500 text-sm mb-3 uppercase tracking-widest font-semibold">ด้วยความรักและปรารถนาดีจาก</p>
+                                        <p class="font-bold text-2xl text-blue-900 mb-2">ผศ.ดร. มงคลกร ศรีวิชัย</p>
+                                        <p class="font-bold text-2xl text-blue-900">และ พี่มด อนุสรา ใจเฉลียว</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Data Scripts -->
+    <script>
+        window.chaptersData = [];
+        window.finalExamData = [];
+    </script>
+    <script src="data1.js"></script>
+    <script src="data2.js"></script>
+    <script src="data3.js"></script>
+    <script src="data4.js"></script>
+    <script src="final_exam.js"></script>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    isLoggedIn: false,
+                    studentInfo: {
+                        firstName: '',
+                        lastName: '',
+                        studentId: '',
+                        code: ''
+                    },
+                    startTime: null,
+                    endTime: null,
+                    currentMode: 'chapter', // 'chapter' or 'final'
+                    chapters: window.chaptersData || [],
+                    currentChapter: 1,
+                    answers: {},
+                    submitted: {},
+                    finalExam: window.finalExamData || [],
+                    finalAnswers: new Array(50).fill(null),
+                    finalSubmitted: false
+                }
+            },
+            computed: {
+                sortedChapters() {
+                    return this.chapters.sort((a, b) => a.id - b.id);
+                },
+                activeChapter() {
+                    return this.chapters.find(ch => ch.id === this.currentChapter);
+                },
+                allChaptersSubmitted() {
+                    if(this.chapters.length < 8) return false;
+                    return this.chapters.every(ch => this.submitted[ch.id] === true);
+                },
+                finalScore() {
+                    let score = 0;
+                    this.finalExam.forEach((q, index) => {
+                        if (this.finalAnswers[index] === q.answer) score++;
+                    });
+                    return score;
+                },
+                examDuration() {
+                    if(!this.startTime || !this.endTime) return "-";
+                    const diff = Math.floor((this.endTime - this.startTime) / 1000);
+                    const hrs = Math.floor(diff / 3600);
+                    const mins = Math.floor((diff % 3600) / 60);
+                    const secs = diff % 60;
+                    
+                    let parts = [];
+                    if (hrs > 0) parts.push(`${hrs} ชม.`);
+                    if (mins > 0) parts.push(`${mins} นาที`);
+                    parts.push(`${secs} วินาที`);
+                    return parts.join(' ');
+                }
+            },
+            created() {
+                this.initData();
+                setTimeout(() => {
+                    this.finalExam = window.finalExamData || [];
+                    if(this.finalAnswers.length !== this.finalExam.length && this.finalExam.length > 0) {
+                        this.finalAnswers = new Array(this.finalExam.length).fill(null);
+                    }
+                }, 1000);
+            },
+            methods: {
+                formatTime(dateObj) {
+                    if(!dateObj) return "-";
+                    return dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                },
+                getChapterScore(chapterId) {
+                    if(!this.submitted[chapterId]) return 0;
+                    const chapter = this.chapters.find(ch => ch.id === chapterId);
+                    let score = 0;
+                    chapter.quiz.slice(0, 4).forEach((q, index) => {
+                        if (this.answers[chapterId][index] === q.answer) {
+                            score++;
+                        }
+                    });
+                    return score;
+                },
+                startExam() {
+                    if(this.studentInfo.firstName && this.studentInfo.lastName && this.studentInfo.studentId && this.studentInfo.code) {
+                        this.isLoggedIn = true;
+                        this.startTime = new Date();
+                        this.currentMode = 'chapter';
+                        this.currentChapter = 1;
+                        window.scrollTo({ top: 0 });
+                    }
+                },
+                initData() {
+                    this.chapters.forEach(ch => {
+                        if (!this.answers[ch.id]) {
+                            this.answers[ch.id] = new Array(4).fill(null);
+                            this.submitted[ch.id] = false;
+                        }
+                    });
+                },
+                isChapterLocked(chapterId) {
+                    if (chapterId === 1) return false;
+                    return !this.submitted[chapterId - 1];
+                },
+                goToChapter(id) {
+                    if (!this.isChapterLocked(id)) {
+                        this.currentMode = 'chapter';
+                        this.currentChapter = id;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                },
+                goToFinal() {
+                    if (this.allChaptersSubmitted) {
+                        this.currentMode = 'final';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        alert("โปรดทำแบบทดสอบให้ครบทั้ง 8 บทก่อนเพื่อปลดล็อกข้อสอบประมวลความรู้ครับ");
+                    }
+                },
+                submitQuiz(chapterId) {
+                    if(this.answers[chapterId].includes(null)) {
+                        alert("กรุณาตอบคำถามให้ครบทั้ง 4 ข้อก่อนส่งครับ");
+                        return;
+                    }
+                    this.submitted[chapterId] = true;
+                },
+                submitFinal() {
+                    const unanswered = this.finalAnswers.filter(a => a === null).length;
+                    if(unanswered > 0) {
+                        const confirmSubmit = confirm(`คุณยังไม่ได้ตอบคำถามอีก ${unanswered} ข้อ คุณแน่ใจหรือไม่ที่จะส่งข้อสอบ?`);
+                        if(!confirmSubmit) return;
+                    }
+                    this.endTime = new Date();
+                    this.finalSubmitted = true;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+                copyResults() {
+                    const text = `ผลการสอบ: ${this.studentInfo.firstName} ${this.studentInfo.lastName}
+รหัส: ${this.studentInfo.studentId} | Code: ${this.studentInfo.code}
+เริ่ม: ${this.formatTime(this.startTime)} | เสร็จสิ้น: ${this.formatTime(this.endTime)}
+ใช้เวลา: ${this.examDuration}
+----------------------
+แบบทดสอบบทที่ 1: ${this.getChapterScore(1)}/4
+แบบทดสอบบทที่ 2: ${this.getChapterScore(2)}/4
+แบบทดสอบบทที่ 3: ${this.getChapterScore(3)}/4
+แบบทดสอบบทที่ 4: ${this.getChapterScore(4)}/4
+แบบทดสอบบทที่ 5: ${this.getChapterScore(5)}/4
+แบบทดสอบบทที่ 6: ${this.getChapterScore(6)}/4
+แบบทดสอบบทที่ 7: ${this.getChapterScore(7)}/4
+แบบทดสอบบทที่ 8: ${this.getChapterScore(8)}/4
+----------------------
+คะแนนสอบรวม Final: ${this.finalScore}/50`;
+                    
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('คัดลอกข้อมูลสำเร็จ! สามารถนำไปวาง (Paste) ส่งให้อาจารย์ได้เลยครับ');
+                    }).catch(err => {
+                        alert('ไม่สามารถคัดลอกได้ กรุณาแคปหน้าจอแทนครับ');
+                    });
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
